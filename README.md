@@ -1,5 +1,5 @@
 # 数字人对话demo
-基于开源项目的数字人对话demo，提供MLLM(GLM-4-Voice)-THG和ASR-LLM-TTS-THG两种数字人生成方式，首包延迟低至3s。
+实时语音交互数字人，支持端到端语音方案（GLM-4-Voice - THG）和级联方案（ASR-LLM-TTS-THG）。可自定义形象与音色，支持音色克隆，首包延迟低至3s。
 
 在线demo：https://www.modelscope.cn/studios/AI-ModelScope/video_chat
 
