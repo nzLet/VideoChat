@@ -15,10 +15,10 @@
 
 ## 技术选型
 * ASR (Automatic Speech Recognition): [FunASR](https://github.com/modelscope/FunASR)
-* LLM (Large Language Model): [Qwen](https://help.aliyun.com/zh/model-studio/developer-reference/use-qwen-by-calling-api)
+* LLM (Large Language Model): [Qwen](https://github.com/QwenLM/Qwen)
 * TTS (Text to speech): [GPT-SoVITS](https://github.com/RVC-Boss/GPT-SoVITS), [CosyVoice](https://github.com/FunAudioLLM/CosyVoice), [edge-tts](https://github.com/rany2/edge-tts)
 * THG (Talking Head Generation): [MuseTalk](https://github.com/TMElyralab/MuseTalk/tree/main)
-<!-- * 端到端语音LLM: [Mini-Omni](https://github.com/gpt-omni/mini-omni) -->
+* End-to-end voice LLM: [GLM-4-Voice](https://github.com/THUDM/GLM-4-Voice/tree/main)
 
 ## 本地部署
 ### 1. 环境配置
