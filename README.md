@@ -1,5 +1,5 @@
 # 数字人对话demo
-基于开源ASR、LLM、TTS、THG的数字人对话demo，首包延迟3-5s。
+基于开源项目的数字人对话demo，提供MLLM(GLM-4-Voice)-THG和ASR-LLM-TTS-THG两种数字人生成方式，首包延迟低至3s。
 
 在线demo：https://www.modelscope.cn/studios/AI-ModelScope/video_chat
 
@@ -10,8 +10,8 @@
 ## TODO
 - [x] TTS模块添加音色克隆功能
 - [x] TTS模块添加edge-tts
-- [x] LLM模块添加qwen本地推理
-- [ ] 链路优化：端到端语音
+- [x] 支持GLM-4-Voice，提供ASR-LLM-TTS-THG和MLLM-THG两种生成方式
+- [ ] 链路优化
 
 ## 技术选型
 * ASR (Automatic Speech Recognition): [FunASR](https://github.com/modelscope/FunASR)

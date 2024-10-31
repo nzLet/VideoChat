@@ -6,9 +6,13 @@ import gradio as gr
 import modelscope_studio as mgr
 import uvicorn
 from fastapi import FastAPI
+from modelscope import snapshot_download
 import warnings
+import time
+import socket
 
 warnings.filterwarnings("ignore")
+
 # os.environ["DASHSCOPE_API_KEY"] = "INPUT YOUR API KEY HERE"
 os.environ["is_half"] = "True"
 
@@ -20,14 +24,48 @@ os.system('mim install "mmpose==1.2.0"')
 # os.system('pip install --upgrade gradio') # 安装Gradio 5.0,目前创空间暂不支持，本地可选择5.0版本
 shutil.rmtree('./workspaces/results', ignore_errors= True)
 
-from src.pipeline import chat_pipeline
+# GLM-4-Voice 配置
+sys.path.insert(0, "./src/GLM_4_Voice")
+sys.path.insert(0, "./src/GLM_4_Voice/cosyvoice")
+sys.path.insert(0, "./src/GLM_4_Voice//third_party/Matcha-TTS")
+snapshot_download('ZhipuAI/glm-4-voice-tokenizer',cache_dir='./weights')
+snapshot_download('ZhipuAI/glm-4-voice-decoder',cache_dir='./weights')
+snapshot_download('ZhipuAI/glm-4-voice-9b',cache_dir='./weights')
+
+from src.pipeline_llm import llm_pipeline
+from src.pipeline_mllm import mllm_pipeline
+
+
+def is_port_open(host, port):
+    """Check if a port is open on the given host."""
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.settimeout(1)
+        try:
+            s.connect((host, port))
+            return True
+        except (ConnectionRefusedError, socket.timeout):
+            return False
+
+
+def wait_for_port(host, port, timeout=1800):
+    """Wait for a port to open within a specified timeout."""
+    start_time = time.time()
+    while time.time() - start_time < timeout:
+        if is_port_open(host, port):
+            print(f"Port {port} is open on {host}.")
+            return True
+        time.sleep(1)
+    print(f"Timeout: Port {port} is not open on {host} after {timeout} seconds.")
+    return False
+
 
 def create_gradio():
-    with gr.Blocks() as demo:   
+    with gr.Blocks() as cascade_demo: 
+
         gr.Markdown(
             """
             <div style="text-align: center; font-size: 32px; font-weight: bold; margin-bottom: 20px;">
-            Chat with Digital Human
+            Chat with Digital Human (ASR-LLM-TTS-THG)
             </div>  
             """
         )
@@ -53,7 +91,7 @@ def create_gradio():
                 user_input = mgr.MultimodalInput(sources=["microphone"])
 
             with gr.Column(scale = 1):
-                video_stream = gr.Video(label="Video Stream 🎬 (基于Gradio 5测试版，网速不佳可能卡顿)", streaming=True, height = 500, scale = 1)  
+                video_stream = gr.Video(label="Video Stream 🎬 (基于Gradio 5测试版，网速不佳可能卡顿，可参考左侧对话框生成的完整视频。)", streaming=True, height = 500, scale = 1)  
                 user_input_audio = gr.Audio(label="音色克隆(可选项，输入音频控制在3-10s。如果不需要音色克隆，请清空。)", sources = ["microphone", "upload"],type = "filepath")
                 stop_button = gr.Button(value="停止生成")
 
@@ -63,45 +101,112 @@ def create_gradio():
         lifecycle = mgr.Lifecycle()
 
         # voice clone
-        user_input_audio.stop_recording(chat_pipeline.load_voice,
+        user_input_audio.stop_recording(llm_pipeline.load_voice,
             inputs = [avatar_voice, tts_module, user_input_audio],
             outputs = [user_input])
         # loading TTS Voice
-        avatar_voice.change(chat_pipeline.load_voice, 
+        avatar_voice.change(llm_pipeline.load_voice, 
             inputs=[avatar_voice, tts_module, user_input_audio], 
             outputs=[user_input]
             )
-        lifecycle.mount(chat_pipeline.load_voice,
+        lifecycle.mount(llm_pipeline.load_voice,
             inputs=[avatar_voice, tts_module, user_input_audio],
             outputs=[user_input]
         )
 
         # Submit
-        user_input.submit(chat_pipeline.run_pipeline,
+        user_input.submit(llm_pipeline.run_pipeline,
             inputs=[user_input, user_messages, chunk_size, avatar_name, tts_module, chat_mode, user_input_audio], 
             outputs=[user_messages]
             )
-        user_input.submit(chat_pipeline.yield_results, 
+        user_input.submit(llm_pipeline.yield_results, 
             inputs=[user_input, user_chatbot, user_processing_flag],
             outputs = [user_input, user_chatbot, video_stream, user_processing_flag]
             )
 
         # refresh
-        lifecycle.unmount(chat_pipeline.stop_pipeline, 
+        lifecycle.unmount(llm_pipeline.stop_pipeline, 
             inputs = user_processing_flag, 
             outputs = user_processing_flag
             )
 
         # stop
-        stop_button.click(chat_pipeline.stop_pipeline, 
+        stop_button.click(llm_pipeline.stop_pipeline, 
             inputs = user_processing_flag, 
             outputs = user_processing_flag
             )
         
-    return demo.queue()
+    with gr.Blocks() as mllm_demo:
+          
+        gr.Markdown(
+            """
+            <div style="text-align: center; font-size: 32px; font-weight: bold; margin-bottom: 20px;">
+            Chat with Digital Human (GLM-4-Voice - THG)
+            </div>  
+            """
+        )
+        with gr.Row():
+            with gr.Column(scale = 2):
+                user_chatbot = mgr.Chatbot(
+                    label = "Chat History 💬",
+                    value = [[None, {"text":"您好，请问有什么可以帮到您？您可以在下方的输入框点击麦克风录制音频或直接输入文本与我聊天。\n我使用了智谱AI开源的端到端语音模型GLM-4-Voice，您可以通过简单的指令控制情绪、生成方言等，例如：\n“用轻柔的声音引导我放松。”\n“用东北话介绍一下冬天有多冷。”\n“用北京话念一句绕口令。”\n"}],],
+                    avatar_images=[
+                        {"avatar": os.path.abspath("data/icon/user.png")},
+                        {"avatar": os.path.abspath("data/icon/qwen.png")},
+                    ],
+                    height= 500,
+                ) 
+
+                with gr.Row():
+                    avatar_name = gr.Dropdown(label = "数字人形象", choices = ["Avatar1 (通义万相)", "Avatar2 (通义万相)", "Avatar3 (MuseV)"], value = "Avatar1 (通义万相)")
+
+                  
+                user_input = mgr.MultimodalInput(sources=["microphone"])
+
+            with gr.Column(scale = 1):
+                video_stream = gr.Video(label="Video Stream 🎬 (基于Gradio 5测试版，网速不佳可能卡顿，可参考左侧对话框生成的完整视频。)", streaming=True, height = 500, scale = 1)  
+
+        # GLM mode
+        user_input.submit(
+            mllm_pipeline.run_pipeline,
+            inputs=[user_input, avatar_name], 
+            outputs=[]
+            )
+        user_input.submit(
+            mllm_pipeline.yield_results, 
+            inputs=[user_input, user_chatbot],
+            outputs = [user_input, user_chatbot, video_stream]
+            )
+        
+
+    return gr.TabbedInterface([cascade_demo, mllm_demo], ['ASR-LLM-TTS-THG', 'MLLM(GLM-4-Voice)-THG']).queue()
 
 if __name__ == "__main__":
-    app = FastAPI()
-    gradio_app = create_gradio()
-    app = gr.mount_gradio_app(app, gradio_app, path='/')
-    uvicorn.run(app, port = 7860)
+    # 启动 model_server
+    model_server_process = subprocess.Popen(
+        ['python', 'server.py'],
+        cwd="./",
+    )
+
+    # 等待 model_server 启动并打开端口
+    if wait_for_port('localhost', 10000):
+        
+        try:
+            # warm up 
+            mllm_pipeline.mllm.warm_up()
+            # 启动 gradio demo
+            print("Starting FastAPI with Gradio...")
+            app = FastAPI()
+            gradio_app = create_gradio()
+            app = gr.mount_gradio_app(app, gradio_app, path='/')
+            uvicorn.run(app, port=7860)
+
+            # 等待 model_server 进程结束
+            model_server_process.wait()
+
+        except KeyboardInterrupt:
+            print("Terminating processes...")
+            model_server_process.terminate()
+    else:
+        print("Failed to start model_server, terminating...")
+        model_server_process.terminate()

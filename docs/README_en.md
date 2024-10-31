@@ -1,5 +1,5 @@
 # Digital Human Dialogue Demo
-A digital human dialogue demo based on open-source ASR, LLM, TTS, and THG, with an first package latency of 3-5 seconds.
+Digital human dialogue demo based on open-source projects, offering two digital human generation methods: MLLM (GLM-4-Voice)-THG and ASR-LLM-TTS-THG, with the initial package delay as low as 3 seconds.
 
 Online demo：https://www.modelscope.cn/studios/AI-ModelScope/video_chat
 
@@ -9,7 +9,8 @@ Online demo：https://www.modelscope.cn/studios/AI-ModelScope/video_chat
 - [x] Add voice cloning feature to the TTS module 
 - [x] Add edge-tts to the TTS module
 - [x] Add local inference for the Qwen to the LLM module
-- [ ] Optimize the pipeline: end-to-end speech
+- [x] Support GLM-4-Voice, offering two generation methods: ASR-LLM-TTS-THG and MLLM-THG
+- [ ] Optimize the pipeline
 
 ## Technology Stack
 * ASR (Automatic Speech Recognition): [FunASR](https://github.com/modelscope/FunASR)

@@ -26,12 +26,12 @@ from src.thg import Muse_Talk
 from src.asr import Fun_ASR
 from src.llm import Qwen_API
 
-
+# ASR-LLM-TTS-THG 级联
 @torch.no_grad()
-class ChatPipeline:
+class LLMPipeline:
     def __init__(self):
         print(f"[1/4] Start initializing musetalk")
-        self.muse_talk = Muse_Talk()
+        self.thg = Muse_Talk()
 
         print(f"[2/4] Start initializing funasr")
         self.asr = Fun_ASR()
@@ -83,12 +83,6 @@ class ChatPipeline:
         yield gr.update(interactive=True, value=None)
         print(f"Load voice cost: {round(time.time()-start_time,2)}s")
 
-    
-
-    def warm_up(self):
-        gr.Info("Warming up THG Module...", duration = 2)
-        self.muse_talk.warm_up()
-        
 
     def flush_pipeline(self):
         print("Flushing pipeline....")
@@ -300,7 +294,9 @@ class ChatPipeline:
 
     def thg_worker(self, project_path, avatar_name):
         # 在本线程中提前做一次推理，避免第一次推理耗时过长
-        self.warm_up()
+        gr.Info("Warming up THG Module...", duration = 2)
+        self.thg.warm_up()
+
         start_time = time.time()
         index = 0
         while not self.stop.is_set():
@@ -310,7 +306,7 @@ class ChatPipeline:
                 if not llm_response_audio:
                     break
                 infer_start_time = time.time()
-                self.muse_talk.infer(project_path=project_path, audio_path=llm_response_audio, avatar_name=avatar_name)
+                self.thg.infer(project_path=project_path, audio_path=llm_response_audio, avatar_name=avatar_name)
                 self.time_cost[2].append(round(time.time()-infer_start_time,2))
                 self.thg_queue.put(llm_response_audio)
                 start_time = time.time()
@@ -348,4 +344,4 @@ class ChatPipeline:
         self.video_queue.put(None)
 
 # 实例化         
-chat_pipeline = ChatPipeline()
+llm_pipeline = LLMPipeline()

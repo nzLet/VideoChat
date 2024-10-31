@@ -143,7 +143,6 @@ class GPT_SoVits_TTS:
         for sampling_rate, audio_data in self.tts_pipeline.run(text = "首次infer，模型warm up。"):
             pass
 
-    @torch.no_grad()
     def infer(self, project_path, text, index = 0):  
         audio_path = f"{project_path}/audio"
         os.makedirs(audio_path, exist_ok=True)
@@ -153,18 +152,6 @@ class GPT_SoVits_TTS:
             output_wav_path = f"{audio_path}/llm_response_audio_{index}.wav"
             sf.write(output_wav_path, audio_data, sampling_rate)
             print(f"Save audio {output_wav_path}")
-        print(f"Audio {index}:Cost {time.time()-start_time} secs")
-        return output_wav_path
-
-
-    def infer_whisper(self, text, index = 0):
-        audio_path = f"{project_path}/audio"
-        os.makedirs(audio_path, exist_ok=True)
-
-        start_time = time.time()
-        for sampling_rate, audio_data in self.tts_pipeline.run(text):
-            output_wav_path = f"{audio_path}/llm_response_audio_{index}.wav"
-            sf.write(output_wav_path, audio_data, sampling_rate)
         print(f"Audio {index}:Cost {time.time()-start_time} secs")
         return output_wav_path
 

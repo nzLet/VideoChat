@@ -11,3 +11,4 @@ workspaces/
 */.mypy_cache/
 */.coverage
 __pycache__/
+weights/ZhipuAI/*
