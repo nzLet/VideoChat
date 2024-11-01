@@ -28,6 +28,7 @@ shutil.rmtree('./workspaces/results', ignore_errors= True)
 sys.path.insert(0, "./src/GLM_4_Voice")
 sys.path.insert(0, "./src/GLM_4_Voice/cosyvoice")
 sys.path.insert(0, "./src/GLM_4_Voice//third_party/Matcha-TTS")
+
 snapshot_download('ZhipuAI/glm-4-voice-tokenizer',cache_dir='./weights')
 snapshot_download('ZhipuAI/glm-4-voice-decoder',cache_dir='./weights')
 snapshot_download('ZhipuAI/glm-4-voice-9b',cache_dir='./weights')
@@ -67,6 +68,11 @@ def create_gradio():
             <div style="text-align: center; font-size: 32px; font-weight: bold; margin-bottom: 20px;">
             Chat with Digital Human (ASR-LLM-TTS-THG)
             </div>  
+            <div style="text-align: center;">
+               <a href="https://github.com/Henry-23/VideoChat"> GitHub </a> |
+               <a href="https://mp.weixin.qq.com/s/jpoB8O2IyjhXeAWNWnAj7A"> 社区文章 </a>
+            </div>
+
             """
         )
         with gr.Row():
@@ -143,6 +149,10 @@ def create_gradio():
             <div style="text-align: center; font-size: 32px; font-weight: bold; margin-bottom: 20px;">
             Chat with Digital Human (GLM-4-Voice - THG)
             </div>  
+            <div style="text-align: center;">
+               <a href="https://github.com/Henry-23/VideoChat"> GitHub </a> |
+               <a href="https://mp.weixin.qq.com/s/jpoB8O2IyjhXeAWNWnAj7A"> 社区文章 </a>
+            </div>
             """
         )
         with gr.Row():
@@ -166,11 +176,13 @@ def create_gradio():
             with gr.Column(scale = 1):
                 video_stream = gr.Video(label="Video Stream 🎬 (基于Gradio 5测试版，网速不佳可能卡顿，可参考左侧对话框生成的完整视频。)", streaming=True, height = 500, scale = 1)  
 
+        user_messages = gr.State("") #保存上一轮会话的token
+
         # GLM mode
         user_input.submit(
             mllm_pipeline.run_pipeline,
-            inputs=[user_input, avatar_name], 
-            outputs=[]
+            inputs=[user_input, user_messages, avatar_name], 
+            outputs=[user_messages]
             )
         user_input.submit(
             mllm_pipeline.yield_results, 

@@ -91,7 +91,7 @@ class LLMPipeline:
         self.tts_queue = queue.Queue()
         self.thg_queue = queue.Queue()
         self.chat_history = []
-        self.idx = 0
+        self.thg.idx = 0
         self.start_time = None
         self.asr_cost = 0
         self.time_cost = [[] for _ in range(4)]

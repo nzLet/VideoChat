@@ -1,27 +1,23 @@
-"""
-A model worker executes the model.
-"""
-import argparse
 import json
-import uuid
-
 from fastapi import FastAPI, Request
 from fastapi.responses import StreamingResponse
 from transformers import AutoModel, AutoTokenizer
 import torch
 import uvicorn
-
 from transformers.generation.streamers import BaseStreamer
 from threading import Thread
-from queue import Queue
+import queue
+
+from src.thg import Muse_Talk
 
 
+# GLM-4-Voice
 class TokenStreamer(BaseStreamer):
     def __init__(self, skip_prompt: bool = False, timeout=None):
         self.skip_prompt = skip_prompt
 
         # variables used in the streaming process
-        self.token_queue = Queue()
+        self.token_queue = queue.Queue()
         self.stop_signal = None
         self.next_tokens_are_prompt = True
         self.timeout = timeout
@@ -53,8 +49,8 @@ class TokenStreamer(BaseStreamer):
             return value
 
 
-class ModelWorker:
-    def __init__(self, model_path, device='cuda'):
+class MllmWorker:
+    def __init__(self, model_path = "./weights/ZhipuAI/glm-4-voice-9b", device='cuda'):
         self.device = device
         self.glm_model = AutoModel.from_pretrained(model_path, trust_remote_code=True,
                                                    device=device).to(device).eval()
@@ -94,6 +90,17 @@ class ModelWorker:
             yield (json.dumps(ret)+ "\n").encode()
 
 
+# MuseTalk
+# class ThgWorker:
+#     def init(self):
+#         self.thg = Muse_Talk()
+#         self.thg.warm_up()
+    
+#     def generate_frames(self, project_path, audio_path, avatar_name):
+#         self.thg.infer(project_path=project_path, audio_path=llm_response_audio, avatar_name=avatar_name)
+
+
+# FastAPI
 app = FastAPI()
 
 
@@ -101,16 +108,15 @@ app = FastAPI()
 async def generate_stream(request: Request):
     params = await request.json()
 
-    generator = worker.generate_stream_gate(params)
+    generator = mllm_worker.generate_stream_gate(params)
     return StreamingResponse(generator)
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--host", type=str, default="localhost")
-    parser.add_argument("--port", type=int, default=10000)
-    parser.add_argument("--model-path", type=str, default="./weights/ZhipuAI/glm-4-voice-9b")
-    args = parser.parse_args()
+    # glm-4-voice worker
+    mllm_worker = MllmWorker()
 
-    worker = ModelWorker(args.model_path)
-    uvicorn.run(app, host=args.host, port=args.port, log_level="info")
+    # thg worker
+    # thg_worker = ThgWorker()
+
+    uvicorn.run(app, host="localhost", port=10000, log_level="info")

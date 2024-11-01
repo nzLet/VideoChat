@@ -10,9 +10,10 @@
 ## TODO
 - [x] TTS模块添加音色克隆功能
 - [x] TTS模块添加edge-tts
+- [x] LLM模块添加qwen本地推理
 - [x] 支持GLM-4-Voice，提供ASR-LLM-TTS-THG和MLLM-THG两种生成方式
-- [ ] 链路优化
-
+- [ ] 集成[gradio-webrtc](https://github.com/freddyaboulton/gradio-webrtc)，提高视频流稳定性（需等待支持音视频同步传输）
+ 
 ## 技术选型
 * ASR (Automatic Speech Recognition): [FunASR](https://github.com/modelscope/FunASR)
 * LLM (Large Language Model): [Qwen](https://github.com/QwenLM/Qwen)
@@ -25,6 +26,7 @@
 
 * ubuntu 22.04
 * python 3.10
+* CUDA 12.2
 * torch 2.1.2
 
 ```bash

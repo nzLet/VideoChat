@@ -30,14 +30,15 @@ def get_timestamp_str():
     folder_name = current_time.strftime(fmt)
     return folder_name
 
+
 @torch.no_grad() 
 class Muse_Talk:
-    def __init__(self, avatar_list = [('Avatar1',6), ('Avatar2', 6),('Avatar3',-7) ], batch_size = 8, fps = 25):
+    def __init__(self, avatar_list = [('Avatar1',6), ('Avatar2', 6),('Avatar3',-7) ], batch_size = 8, fps = 25, device = "cuda"):
         self.fps = fps
         self.batch_size = batch_size
         # load model weights
         self.audio_processor, self.vae, self.unet, self.pe = load_all_model()
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.device = torch.device(device if torch.cuda.is_available() else "cpu")
         self.pe = self.pe.half()
         self.vae.vae = self.vae.vae.half()
         self.unet.model = self.unet.model.half()

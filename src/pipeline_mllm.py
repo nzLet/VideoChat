@@ -23,18 +23,16 @@ import pandas as pd
 from src.utils import get_timestamp_str, merge_videos, merge_frames_with_audio, get_video_duration
 from src.glm import GLM_4_Voice
 from src.thg import Muse_Talk
+from src.pipeline_llm import llm_pipeline
 
 
 # MLLM-THG
 @torch.no_grad()
 class MLLMPipeline:
     def __init__(self):
-        print(f"[1/4] Start initializing musetalk")
-        self.thg = Muse_Talk()
-
-        print(f"[2/4] Start initializing GLM-4-Voice")
+        print(f"Start initializing GLM-4-Voice")
+        self.thg = llm_pipeline.thg
         self.mllm = GLM_4_Voice()
-        
         print("[Done] Initialzation finished")
 
         self.timeout= 30 
@@ -44,6 +42,11 @@ class MLLMPipeline:
 
         self.chat_history = []
         self.stop = threading.Event()
+
+
+    # GLM-4-Voice暂时没提供明确的停止方式
+    def stop_pipeline(self):
+        pass
         
 
     def flush_pipeline(self):
@@ -52,11 +55,11 @@ class MLLMPipeline:
         self.mllm_queue = queue.Queue()
         self.thg_queue = queue.Queue()
         self.chat_history = []
-        self.idx = 0
+        self.thg.idx = 0
         self.start_time = None
         
 
-    def run_pipeline(self, user_input, avatar_name):
+    def run_pipeline(self, user_input, user_messages, avatar_name):
         self.flush_pipeline()
         self.start_time = time.time()
         avatar_name = avatar_name.split(" ")[0]
@@ -74,22 +77,23 @@ class MLLMPipeline:
             self.ffmpeg_thread.start()
 
             # MLLM streaming out
-            self.mllm.infer(project_path, user_input, self.mllm_queue)
+            user_messages = self.mllm.infer(project_path, user_input, user_messages, self.mllm_queue)
 
             self.thg_thread.join()
             self.ffmpeg_thread.join()
 
-            # Remove frames
-            if self.stop.is_set():
-                print("Stop pipeline......")
-            else:
-                print("Finish pipeline......")
+            # Stop pipeline
+            # if self.stop.is_set():
+            #     print("Stop pipeline......")
+            # else:
+            #     print("Finish pipeline......")
 
+            return user_messages
 
         except Exception as e:
             print(f"An error occurred: {str(e)}")
             gr.Error(f"An error occurred: {str(e)}")
-            return None
+            return ""
 
  
     def get_time_cost(self):
@@ -120,6 +124,7 @@ class MLLMPipeline:
         time.sleep(1)
         index = 0
         videos_path = None
+        fp_latency = 0
         start_time = time.time()
         print("[Listener] Start yielding results from queue.")
 
@@ -129,6 +134,8 @@ class MLLMPipeline:
                     video_path = self.video_queue.get(timeout=1)
                     if not video_path:
                         break
+                    if index == 0:
+                        fp_latency = time.time() - self.start_time
                     videos_path = os.path.dirname(video_path)
                     user_chatbot[-1][1]["text"]+=self.chat_history[index]
 
@@ -147,8 +154,6 @@ class MLLMPipeline:
                 except Exception as e:
                     gr.Error(f"An error occurred: {str(e)}")
 
-            # time_cost = self.get_time_cost()
-            # print(f"Time cost: \n{time_cost}")
 
             # Merge all videos
             if not self.stop.is_set() and videos_path:
@@ -156,7 +161,7 @@ class MLLMPipeline:
                 # video mp4 format
                 llm_response_txt = user_chatbot[-1][1]["text"]  + f"""<video src="{merged_video_path}"></video>\n""" 
                 # First Packet RT
-                # llm_response_txt = llm_response_txt + f"首包延迟：{round(self.time_cost[-1][0], 2)}s\n"
+                llm_response_txt = llm_response_txt + f"首包延迟：{round(fp_latency, 2)}s\n"
                 user_chatbot[-1][1] = {
                         "text": llm_response_txt,
                         "flushing": False
@@ -207,6 +212,7 @@ class MLLMPipeline:
                     break
                 
         self.thg_queue.put(None)
+
 
     def ffmpeg_worker(self):
         start_time = time.time()

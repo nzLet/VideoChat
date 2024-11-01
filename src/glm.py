@@ -20,6 +20,7 @@ from src.GLM_4_Voice.flow_inference import AudioDecoder
 # Regular expression pattern for audio tokens
 audio_token_pattern = re.compile(r"<\|audio_(\d+)\|>")
 
+
 @torch.no_grad()
 class GLM_4_Voice:
     def __init__(self):
@@ -65,16 +66,15 @@ class GLM_4_Voice:
                 self.files = None
 
         with tempfile.TemporaryDirectory() as tmpdirname:
-            self.infer(tmpdirname, User_Input('你好'), queue.Queue())
+            self.infer(tmpdirname, User_Input('你好'), "", queue.Queue())
        
 
     def infer(
         self,
         project_path,
         user_input,
+        user_messages, 
         mllm_queue,
-        # previous_input_tokens,
-        # previous_completion_tokens,
         temperature = 0.2,
         top_p = 0.8,
         max_new_token = 1000,
@@ -105,19 +105,16 @@ class GLM_4_Voice:
 
 
             # Gather history
-            # inputs = previous_input_tokens + previous_completion_tokens
-            # inputs = inputs.strip()
-            # if "<|system|>" not in inputs:
-            #     inputs += f"<|system|>\n{system_prompt}"
-            inputs = f"<|system|>\n{system_prompt}"
-
-            inputs += f"<|user|>\n{user_input_tokens}<|assistant|>streaming_transcription\n"
+            input_tokens = user_messages.strip()
+            if "<|system|>" not in input_tokens:
+                input_tokens += f"<|system|>\n{system_prompt}"
+            input_tokens += f"<|user|>\n{user_input_tokens}<|assistant|>streaming_transcription\n"
 
             # Generate results
             response = requests.post(
                 "http://localhost:10000/generate_stream",
                 data=json.dumps({
-                    "prompt": inputs,
+                    "prompt": input_tokens,
                     "temperature": temperature,
                     "top_p": top_p,
                     "max_new_tokens": max_new_token,
@@ -129,6 +126,7 @@ class GLM_4_Voice:
             end_token_id = self.glm_tokenizer.convert_tokens_to_ids('<|user|>')
 
             complete_tokens = []
+            complete_text = ""
             prompt_speech_feat = torch.zeros(1, 0, 80).to(self.device)
             flow_prompt_speech_token = torch.zeros(1, 0, dtype=torch.int64).to(self.device)
             this_uuid = str(uuid.uuid4())
@@ -136,7 +134,7 @@ class GLM_4_Voice:
             tts_mels = []
             prev_mel = None
             is_finalize = False
-            block_size = 10
+            block_size = 15
             index = 0
 
             start_time = time.time()
@@ -165,6 +163,7 @@ class GLM_4_Voice:
                     torchaudio.save(output_wav_path, tts_speech.cpu(), 22050, format="wav")
 
                     text = self.glm_tokenizer.decode(text_tokens, ignore_special_tokens=False)
+                    complete_text += text
                     text_tokens = []
 
                     mllm_queue.put((text, output_wav_path))
@@ -185,6 +184,9 @@ class GLM_4_Voice:
                         text_tokens.append(token_id)
             
             mllm_queue.put((None, None))
+            user_messages = input_tokens + complete_text
+
+            return user_messages
 
 
         except Exception as e:
