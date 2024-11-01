@@ -12,14 +12,15 @@
 - [x] TTS模块添加edge-tts
 - [x] LLM模块添加qwen本地推理
 - [x] 支持GLM-4-Voice，提供ASR-LLM-TTS-THG和MLLM-THG两种生成方式
-- [ ] 集成[gradio-webrtc](https://github.com/freddyaboulton/gradio-webrtc)，提高视频流稳定性（需等待支持音视频同步传输）
+- [ ] 集成[gradio-webrtc](https://github.com/freddyaboulton/gradio-webrtc)，提高视频流稳定性
  
 ## 技术选型
 * ASR (Automatic Speech Recognition): [FunASR](https://github.com/modelscope/FunASR)
 * LLM (Large Language Model): [Qwen](https://github.com/QwenLM/Qwen)
+* End-to-end MLLM (Multimodal Large Language Model): [GLM-4-Voice](https://github.com/THUDM/GLM-4-Voice/tree/main)
 * TTS (Text to speech): [GPT-SoVITS](https://github.com/RVC-Boss/GPT-SoVITS), [CosyVoice](https://github.com/FunAudioLLM/CosyVoice), [edge-tts](https://github.com/rany2/edge-tts)
 * THG (Talking Head Generation): [MuseTalk](https://github.com/TMElyralab/MuseTalk/tree/main)
-* End-to-end voice LLM: [GLM-4-Voice](https://github.com/THUDM/GLM-4-Voice/tree/main)
+
 
 ## 本地部署
 ### 1. 环境配置
