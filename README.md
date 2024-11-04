@@ -12,7 +12,8 @@
 - [x] TTS模块添加edge-tts
 - [x] LLM模块添加qwen本地推理
 - [x] 支持GLM-4-Voice，提供ASR-LLM-TTS-THG和MLLM-THG两种生成方式
-- [ ] 集成[gradio-webrtc](https://github.com/freddyaboulton/gradio-webrtc)，提高视频流稳定性
+- [ ] 提供Docker镜像
+- [ ] 集成[gradio-webrtc](https://github.com/freddyaboulton/gradio-webrtc)（需等待支持音视频同步），提高视频流稳定性
  
 ## 技术选型
 * ASR (Automatic Speech Recognition): [FunASR](https://github.com/modelscope/FunASR)
@@ -103,7 +104,8 @@ $ python app.py
 3. 在`/app.py`中Gradio的avatar_name中加入数字人形象名后重新启动服务，等待完成初始化即可。
 
 ### 6. 不使用GLM-4-Voice（可选）
-分支`cascade_only`为不含GLM-4-Voice的代码，切换到该分支并`python app.py`启动服务即可。
+分支`cascade_only`为不含GLM-4-Voice的代码，切换到该分支并启动服务即可。
 ```bash
 $ git checkout cascade_only
+$ python app.py
 ```
