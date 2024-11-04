@@ -101,3 +101,9 @@ $ python app.py
 1. 在`/data/video/`中添加录制好的数字人形象视频
 2. 修改`/src/thg.py`中`Muse_Talk`类的`avatar_list`，加入`(形象名, bbox_shfit)`，关于bbox_shift的说明参考[这个链接](https://github.com/TMElyralab/MuseTalk?tab=readme-ov-file#use-of-bbox_shift-to-have-adjustable-results)
 3. 在`/app.py`中Gradio的avatar_name中加入数字人形象名后重新启动服务，等待完成初始化即可。
+
+### 6. 不使用GLM-4-Voice（可选）
+分支`cascade_only`为不含GLM-4-Voice的代码，切换到该分支并`python app.py`启动服务即可。
+```bash
+$ git checkout cascade_only
+```
