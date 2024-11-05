@@ -62,38 +62,38 @@ class GPT_SoVits_TTS:
 
     def get_dict_language(self):
         dict_language_v1 = {
-            self.i18n("中文"): "all_zh",
-            self.i18n("英文"): "en",
-            self.i18n("日文"): "all_ja",
-            self.i18n("中英混合"): "zh",
-            self.i18n("日英混合"): "ja",
-            self.i18n("多语种混合"): "auto",
+            "中文": "all_zh",
+            "英文": "en",
+            "日文": "all_ja",
+            "中英混合": "zh",
+            "日英混合": "ja",
+            "多语种混合": "auto",
         }
 
         dict_language_v2 = {
-            self.i18n("中文"): "all_zh",
-            self.i18n("英文"): "en",
-            self.i18n("日文"): "all_ja",
-            self.i18n("粤语"): "all_yue",
-            self.i18n("韩文"): "all_ko",
-            self.i18n("中英混合"): "zh",
-            self.i18n("日英混合"): "ja",
-            self.i18n("粤英混合"): "yue",
-            self.i18n("韩英混合"): "ko",
-            self.i18n("多语种混合"): "auto",
-            self.i18n("多语种混合(粤语)"): "auto_yue",
+            "中文": "all_zh",
+            "英文": "en",
+            "日文": "all_ja",
+            "粤语": "all_yue",
+            "韩文": "all_ko",
+            "中英混合": "zh",
+            "日英混合": "ja",
+            "粤英混合": "yue",
+            "韩英混合": "ko",
+            "多语种混合": "auto",
+            "多语种混合(粤语)": "auto_yue",
         }
 
         return dict_language_v1 if self.version == 'v1' else dict_language_v2
 
     def get_cut_method(self):
         return {
-            self.i18n("不切"): "cut0",
-            self.i18n("凑四句一切"): "cut1",
-            self.i18n("凑50字一切"): "cut2",
-            self.i18n("按中文句号切"): "cut3",
-            self.i18n("按英文句号切"): "cut4",
-            self.i18n("按标点符号切"): "cut5",
+            "不切": "cut0",
+            "凑四句一切": "cut1",
+            "凑50字一切": "cut2",
+            "按中文句号切": "cut3",
+            "按英文句号切": "cut4",
+            "按标点符号切": "cut5",
         }
 
     def init_infer(self,
