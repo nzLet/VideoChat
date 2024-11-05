@@ -24,6 +24,16 @@
 
 
 ## 本地部署
+### 0. 显存需求
+* 级联方案(ASR-LLM-TTS-THG)：约8G
+
+* 端到端语音方案(MLLM-THG)：约20G
+  
+对于不需要使用端到端 MLLM 的开发者，可以选择仅包含级联方案的`cascade_only`分支。
+```bash
+$ git checkout cascade_only
+```
+
 ### 1. 环境配置
 
 * ubuntu 22.04
@@ -38,7 +48,7 @@ $ conda create -n metahuman python=3.10
 $ conda activate metahuman
 $ cd video_chat
 $ pip install -r requirement.txt
-$ pip install --upgrade gradio # 安装Gradio 5
+# $ pip install --upgrade gradio # 安装Gradio 5（可选）
 ```
 
 ### 2. 权重下载
@@ -71,6 +81,14 @@ $ pip install --upgrade gradio # 安装Gradio 5
 
 参考[这个链接](https://github.com/RVC-Boss/GPT-SoVITS/blob/main/docs/cn/README.md#%E9%A2%84%E8%AE%AD%E7%BB%83%E6%A8%A1%E5%9E%8B)
 
+##### 2.2.3 GLM-4-Voice
+在`app.py`中添加如下代码即可完成下载。
+```python
+from modelscope import snapshot_download
+snapshot_download('ZhipuAI/glm-4-voice-tokenizer',cache_dir='./weights')
+snapshot_download('ZhipuAI/glm-4-voice-decoder',cache_dir='./weights')
+snapshot_download('ZhipuAI/glm-4-voice-9b',cache_dir='./weights')
+```
 
 ### 3. 其他配置
 LLM模块和TTS模块提供了多种方式，可自行选择推理方式
@@ -103,9 +121,9 @@ $ python app.py
 2. 修改`/src/thg.py`中`Muse_Talk`类的`avatar_list`，加入`(形象名, bbox_shfit)`，关于bbox_shift的说明参考[这个链接](https://github.com/TMElyralab/MuseTalk?tab=readme-ov-file#use-of-bbox_shift-to-have-adjustable-results)
 3. 在`/app.py`中Gradio的avatar_name中加入数字人形象名后重新启动服务，等待完成初始化即可。
 
-### 6. 不使用GLM-4-Voice（可选）
-分支`cascade_only`为不含GLM-4-Voice的代码，切换到该分支并启动服务即可。
-```bash
-$ git checkout cascade_only
-$ python app.py
-```
+### 6. 已知问题
+1. 报错无法找到某资源：按照报错提示下载对应的资源即可
+![alt text](image.png)
+
+2. 右侧视频流播放卡顿：需等待Gradio优化Video Streaming效果
+3. 与模型加载相关：检查权重是否下载完整
