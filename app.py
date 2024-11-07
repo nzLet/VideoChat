@@ -10,6 +10,16 @@ from modelscope import snapshot_download
 import warnings
 import time
 import socket
+import nltk
+
+# 创空间部署需要
+import ssl
+try:
+    _create_unverified_https_context = ssl._create_unverified_context
+except AttributeError:
+    pass
+else:
+    ssl._create_default_https_context = _create_unverified_https_context
 
 warnings.filterwarnings("ignore")
 
@@ -20,8 +30,8 @@ os.environ["is_half"] = "True"
 os.system('mim install mmengine')
 os.system('mim install "mmcv==2.1.0"')
 os.system('mim install "mmdet==3.2.0"')
-os.system('mim install "mmpose==1.2.0"')
-# os.system('pip install --upgrade gradio') # 安装Gradio 5.0,目前创空间暂不支持，本地可选择5.0版本
+# os.system('mim install "mmpose==1.2.0"') # for torch 2.1.2
+os.system('mim install "mmpose==1.3.2"') # for torch 2.3.0
 shutil.rmtree('./workspaces/results', ignore_errors= True)
 
 # GLM-4-Voice 配置
@@ -97,7 +107,7 @@ def create_gradio():
                 user_input = mgr.MultimodalInput(sources=["microphone"])
 
             with gr.Column(scale = 1):
-                video_stream = gr.Video(label="Video Stream 🎬 (基于Gradio 5测试版，网速不佳可能卡顿，可参考左侧对话框生成的完整视频。)", streaming=True, height = 500, scale = 1)  
+                video_stream = gr.Video(label="Video Stream 🎬 (基于Gradio 5，可能卡顿，可参考左侧对话框生成的完整视频。)", streaming=True, height = 500, scale = 1)  
                 user_input_audio = gr.Audio(label="音色克隆(可选项，输入音频控制在3-10s。如果不需要音色克隆，请清空。)", sources = ["microphone", "upload"],type = "filepath")
                 stop_button = gr.Button(value="停止生成")
 
@@ -110,6 +120,7 @@ def create_gradio():
         user_input_audio.stop_recording(llm_pipeline.load_voice,
             inputs = [avatar_voice, tts_module, user_input_audio],
             outputs = [user_input])
+
         # loading TTS Voice
         avatar_voice.change(llm_pipeline.load_voice, 
             inputs=[avatar_voice, tts_module, user_input_audio], 
@@ -174,7 +185,7 @@ def create_gradio():
                 user_input = mgr.MultimodalInput(sources=["microphone"])
 
             with gr.Column(scale = 1):
-                video_stream = gr.Video(label="Video Stream 🎬 (基于Gradio 5测试版，网速不佳可能卡顿，可参考左侧对话框生成的完整视频。)", streaming=True, height = 500, scale = 1)  
+                video_stream = gr.Video(label="Video Stream 🎬 (基于Gradio 5，可能卡顿，可参考左侧对话框生成的完整视频。)", streaming=True, height = 500, scale = 1)  
 
         user_messages = gr.State("") #保存上一轮会话的token
 

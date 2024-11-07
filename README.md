@@ -12,7 +12,6 @@
 - [x] TTS模块添加edge-tts
 - [x] LLM模块添加qwen本地推理
 - [x] 支持GLM-4-Voice，提供ASR-LLM-TTS-THG和MLLM-THG两种生成方式
-- [ ] 提供Docker镜像
 - [ ] 集成[gradio-webrtc](https://github.com/freddyaboulton/gradio-webrtc)（需等待支持音视频同步），提高视频流稳定性
  
 ## 技术选型
