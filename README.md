@@ -39,7 +39,7 @@ $ git checkout cascade_only
 * ubuntu 22.04
 * python 3.10
 * CUDA 12.2
-* torch 2.1.2
+* torch 2.3.0
 
 ```bash
 $ git lfs install
@@ -48,7 +48,6 @@ $ conda create -n metahuman python=3.10
 $ conda activate metahuman
 $ cd video_chat
 $ pip install -r requirement.txt
-# $ pip install --upgrade gradio # 安装Gradio 5（可选）
 ```
 
 ### 2. 权重下载
