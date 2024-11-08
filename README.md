@@ -105,8 +105,15 @@ os.environ["DASHSCOPE_API_KEY"] = "INPUT YOUR API-KEY HERE"
 ##### 3.2.1 LLM模块
 `src/llm.py`中提供了`Qwen`和`Qwen_API`两个类分别处理本地推理和调用API。若不使用API-KEY，有以下两种方式进行本地推理：
 1. 使用`Qwen`完成本地推理。
-2. `Qwen_API`默认调用API完成推理，若不使用API-KEY，还可以使用`vLLM`在本地部署模型推理服务，参考[这个链接](https://qwen.readthedocs.io/zh-cn/latest/getting_started/quickstart.html#vllm-for-deployment)完成部署后，使用`Qwen_API(api_key="EMPTY",base_url="http://localhost:8000/v1")`初始化实例调用本地推理服务。
-
+2. `Qwen_API`默认调用API完成推理，若不使用API-KEY，还可以使用`vLLM`加速LLM推理。可参考如下方式安装`vLLM`：
+   ```bash
+   $ git clone https://github.com/vllm-project/vllm.git
+   $ cd vllm
+   $ python use_existing_torch.py
+   $ pip install -r requirements-build.txt
+   $ pip install -e . --no-build-isolation
+   ```
+   安装完成后，参考[这个链接](https://qwen.readthedocs.io/zh-cn/latest/getting_started/quickstart.html#vllm-for-deployment)进行部署，使用`Qwen_API(api_key="EMPTY",base_url="http://localhost:8000/v1")`初始化实例调用本地推理服务。
 ##### 3.2.2 TTS模块
 `src/tts.py`中提供了`GPT_SoVits_TTS`和`CosyVoice_API`分别处理本地推理和调用API。若不使用API-KEY，可直接删除`CosyVoice_API`相关的内容，使用`Edge_TTS`调用Edge浏览器的免费TTS服务进行推理。
 
