@@ -123,10 +123,9 @@ $ python app.py
 
 #### 5.2 自定义数字人音色
 `GPT-SoVits`支持自定义音色。demo中可使用音色克隆功能，上传任意语音内容的参考音频后开始对话，或将音色永久添加到demo中：
-1. 录制参考音频，语音内容为“喜悦。哇塞！今天真是太棒了！悲伤。哎！生活怎么如此艰难。”。如果是其他语音内容，还需要修改`src/tts.py`line 101处的`prompt text`。
-2. 在`/data/audio`中添加音色参考音频，命名格式为`x.wav`
-3. 在`/app.py`中Gradio的`avatar_voice`中加入音色名（命名格式为`x (GPT-SoVits)`）后重新启动服务。
-4. TTS选型选择`GPT-SoVits`，开始对话
+1. 在`/data/audio`中添加音色参考音频，音频长度3-10s，命名格式为`x.wav`
+2. 在`/app.py`中Gradio的`avatar_voice`中加入音色名（命名格式为`x (GPT-SoVits)`）后重新启动服务。
+3. TTS选型选择`GPT-SoVits`，开始对话
 
 ### 6. 已知问题
 1. 报错无法找到某资源：按照报错提示下载对应的资源即可
