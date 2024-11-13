@@ -5,7 +5,7 @@ Online Demo: [https://www.modelscope.cn/studios/AI-ModelScope/video_chat](https:
 
 For detailed technical introduction, please refer to [this article](https://mp.weixin.qq.com/s/jpoB8O2IyjhXeAWNWnAj7A).
 
-**[简体中文](./README.md)** | English
+**[简体中文](../README.md)** | English
 
 ## TODO  
 - [x] Add voice cloning functionality to the TTS module  
