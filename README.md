@@ -7,6 +7,10 @@
 
 **中文简体** | [**English**](./docs/README_en.md)
 
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=Henry-23/VideoChat&type=Date)](https://www.star-history.com/#Henry-23/VideoChat&Date)
+
 ## TODO
 - [x] TTS模块添加音色克隆功能
 - [x] TTS模块添加edge-tts
