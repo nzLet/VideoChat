@@ -148,6 +148,5 @@ $ python app.py
    ```bash
    #升级openai
    pip install --upgrade openai httpx
-   ```bash
 5. cache_utils报错
    将报错代码中的EncoderDecoderCache都改为DynamicCache
