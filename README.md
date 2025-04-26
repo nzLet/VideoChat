@@ -144,3 +144,10 @@ $ python app.py
 
 2. 右侧视频流播放卡顿：需等待Gradio优化Video Streaming效果
 3. 与模型加载相关：检查权重是否下载完整
+4. qwen连接报错
+   ```bash
+   #升级openai
+   pip install --upgrade openai httpx
+   ```bash
+5. cache_utils报错
+   将报错代码中的EncoderDecoderCache都改为DynamicCache
